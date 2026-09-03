@@ -17,10 +17,11 @@
 
 // @homepageURL       https://cat7373.github.io/remove-web-limits/
 // @supportURL        https://github.com/Cat7373/remove-web-limits/issues/
-// @updateURL         https://cat7373.github.io/remove-web-limits/remove_web_limits.user.js
+// 原 @updateURL 已删除：留着会自动更新回上游，把下面 addStyle 的修复覆盖掉（上游 2023-12 后已停更）
+// 原值 https://cat7373.github.io/remove-web-limits/remove_web_limits.user.js
 
 // @author            Cat73
-// @version           1.3
+// @version           1.3.1
 // @license           LGPLv3
 
 // @compatible        chrome Chrome_46.0.2490.86 + TamperMonkey + 脚本_1.3 测试通过
@@ -161,7 +162,9 @@
   function addStyle(css) {
     var style = document.createElement('style');
     style.innerHTML = css;
-    document.head.appendChild(style);
+    // @run-at document-start 时 document.head 还没生成，原版直接 .appendChild 会抛 TypeError
+    // 并中断 init，导致整个脚本失效。挂到 documentElement 上同样生效。
+    (document.head || document.documentElement).appendChild(style);
   }
 
   // 获取目标域名应该使用的规则
